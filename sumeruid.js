@@ -46,7 +46,7 @@ class SumeruId {
     this.options.countdown = this.options.countdown ?? scriptTag.getAttribute('data-countdown');
     this.options.onScanned = this.options.onScan ?? this.getFunctionByName(scriptTag.getAttribute('data-on-scan'));
     this.options.onClosed = this.options.onClosed ?? this.getFunctionByName(scriptTag.getAttribute('data-on-closed'));
-    this.options.scopes = this.options.scopes ?? scriptTag.getAttribute('data-scopes')?.split(',') ?? [];
+    this.options.scopes = this.options.scopes ?? scriptTag.getAttribute('data-scopes') ?? '';
 
     console.log('options', this.options)
     
@@ -56,7 +56,7 @@ class SumeruId {
   async getQrCode() {
     try {
       await this.loadLib(SumeruId.qrcodeLib);
-      const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens`, { headers: { Authorization: this.options.apikey }, method: 'POST', body: JSON.stringify({scopes: this.options.scopes}) })
+      const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens/${encodeUri(this.options.scopes)}`, { headers: { Authorization: this.options.apikey }})
       const qrcode = await resp.json()
       if (qrcode.status) {
         this.qrcode = qrcode.data

@@ -32,7 +32,6 @@ class SumeruId {
   async initSumeru() {
     try {
       await this.loadLib(SumeruId.supabaseLib);
-      console.log('Supabase library has been loaded.');
     } catch (error) {
       console.error('Error loading Supabase library:', error);
     }
@@ -44,7 +43,9 @@ class SumeruId {
     const scriptTag = document.currentScript;
     this.options.id = this.options.qrid ?? scriptTag.getAttribute('data-qrid');
     this.options.apikey = this.options.sumeruKey ?? scriptTag.getAttribute('data-sumeru-key');
+    this.options.countdown = this.options.countdown ?? scriptTag.getAttribute('data-countdown');
     this.options.onScanned = this.options.onScan ?? this.getFunctionByName(scriptTag.getAttribute('data-on-scan'));
+    this.options.onClosed = this.options.onClosed ?? this.getFunctionByName(scriptTag.getAttribute('data-on-closed'));
 
     
     await this.getQrCode()
@@ -53,7 +54,6 @@ class SumeruId {
   async getQrCode() {
     try {
       await this.loadLib(SumeruId.qrcodeLib);
-      console.log('Supabase library has been loaded.');
     } catch (error) {
       console.error('Error loading Supabase library:', error);
     }
@@ -81,7 +81,7 @@ class SumeruId {
         this.options.onScanned
       )
       .subscribe()
-
+    this.countdownTimer(120)
     console.log(`Monitoring qrcode: ${this.qrcode.id}`);
     setTimeout(() => {
       this.stopRealtimeConnection();
@@ -91,13 +91,37 @@ class SumeruId {
   stopRealtimeConnection() {
     if (this.realtimeSubscription) {
       this.realtimeSubscription.unsubscribe();
-      console.log('Real-time connection closed.');
+      console.log('QR code expired');
     }
     this.qrdisplay.value = '0'
+    this.options.onClosed()
   }
 
   getFunctionByName(functionName) {
     return window[functionName] instanceof Function ? window[functionName] : null;
+  }
+
+  countdownTimer(durationInSeconds) {
+    const timerDisplay = document.getElementById(this.options.countdown); // Get the element to display the timer
+    
+    let timer = durationInSeconds;
+    
+    const interval = setInterval(() => {
+      const minutes = Math.floor(timer / 60);
+      let seconds = timer % 60;
+  
+      // Add leading zero to seconds if less than 10
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+  
+      // Display the timer in the specified element
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+  
+      // Decrease the timer by 1 second
+      if (--timer < 0) {
+        clearInterval(interval); // Clear the interval when the timer reaches zero
+        timerDisplay.textContent = 'Countdown finished';
+      }
+    }, 1000); // Update every second (1000 milliseconds)
   }
 }
 

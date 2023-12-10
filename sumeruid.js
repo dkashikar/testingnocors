@@ -52,7 +52,7 @@ class SumeruId {
 
   async getQrCode() {
     try {
-      await this.loadLib(qrcodeLib);
+      await this.loadLib(SumeruId.qrcodeLib);
       console.log('Supabase library has been loaded.');
     } catch (error) {
       console.error('Error loading Supabase library:', error);

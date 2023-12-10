@@ -1,8 +1,5 @@
 class SumeruId {
 
-  static supabaseUrl = 'https://d8r3p90s-54341.inc1.devtunnels.ms'
-  static supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-  static sumeruIdUrl = 'https://d8r3p90s-3000.inc1.devtunnels.ms'
   static supabaseLib  = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js'
   static qrcodeLib = 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'
 
@@ -35,7 +32,7 @@ class SumeruId {
     } catch (error) {
       console.error('Error loading Supabase library:', error);
     }
-    this.supabase = supabase.createClient(SumeruId.supabaseUrl, SumeruId.supabaseAnonKey);
+    this.supabase = supabase.createClient(this.options.supabaseUrl, this.options.supabaseAnonKey);
     if (!this.supabase) {
       console.error('Supabase client not initialized.');
       return;
@@ -56,7 +53,7 @@ class SumeruId {
   async getQrCode() {
     try {
       await this.loadLib(SumeruId.qrcodeLib);
-      const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens/${encodeURI(this.options.scopes)}`, { headers: { Authorization: this.options.apikey }})
+      const resp = await fetch(`${this.options.sumeruIdUrl}/auth/tokens/${encodeURI(this.options.scopes)}`, { headers: { Authorization: this.options.apikey }})
       const qrcode = await resp.json()
       if (qrcode.status) {
         this.qrcode = qrcode.data

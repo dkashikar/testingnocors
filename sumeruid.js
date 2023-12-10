@@ -56,7 +56,7 @@ class SumeruId {
   async getQrCode() {
     try {
       await this.loadLib(SumeruId.qrcodeLib);
-      const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens/${encodeUri(this.options.scopes)}`, { headers: { Authorization: this.options.apikey }})
+      const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens/${encodeURI(this.options.scopes)}`, { headers: { Authorization: this.options.apikey }})
       const qrcode = await resp.json()
       if (qrcode.status) {
         this.qrcode = qrcode.data

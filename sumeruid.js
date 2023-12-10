@@ -1,10 +1,10 @@
-// supabaseScript.js
-
 class SumeruId {
 
   static supabaseUrl = 'https://d8r3p90s-54341.inc1.devtunnels.ms'
   static supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
   static sumeruIdUrl = 'https://d8r3p90s-3000.inc1.devtunnels.ms'
+  static supabaseLib  = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js'
+  static qrcodeLib = 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'
 
 
   constructor(options) {
@@ -14,8 +14,29 @@ class SumeruId {
     this.initSumeru();
   }
 
+
+  async loadLib(url) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = url;
+      script.async = true;
+  
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load library'));
+  
+      document.head.appendChild(script);
+    });
+  }
+  
+
   async initSumeru() {
-    this.supabase = supabase.createClient('https://d8r3p90s-54341.inc1.devtunnels.ms', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0');
+    try {
+      await this.loadLib(SumeruId.supabaseLib);
+      console.log('Supabase library has been loaded.');
+    } catch (error) {
+      console.error('Error loading Supabase library:', error);
+    }
+    this.supabase = supabase.createClient(SumeruId.supabaseUrl, SumeruId.supabaseAnonKey);
     if (!this.supabase) {
       console.error('Supabase client not initialized.');
       return;
@@ -30,7 +51,13 @@ class SumeruId {
   }
 
   async getQrCode() {
-    const resp = await fetch(`https://d8r3p90s-3000.inc1.devtunnels.ms/auth/tokens`, { headers: { Authorization: this.options.apikey } })
+    try {
+      await this.loadLib(qrcodeLib);
+      console.log('Supabase library has been loaded.');
+    } catch (error) {
+      console.error('Error loading Supabase library:', error);
+    }
+    const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens`, { headers: { Authorization: this.options.apikey } })
     const qrcode = await resp.json()
     if (qrcode.status) {
       this.qrcode = qrcode.data

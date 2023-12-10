@@ -48,6 +48,7 @@ class SumeruId {
     this.options.onClosed = this.options.onClosed ?? this.getFunctionByName(scriptTag.getAttribute('data-on-closed'));
     this.options.scopes = this.options.scopes ?? scriptTag.getAttribute('data-scopes')?.split(',') ?? [];
 
+    console.log('options', this.options)
     
     await this.getQrCode()
   }
@@ -55,21 +56,23 @@ class SumeruId {
   async getQrCode() {
     try {
       await this.loadLib(SumeruId.qrcodeLib);
+      const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens`, { headers: { Authorization: this.options.apikey }, method: 'POST', body: JSON.stringify({scopes: this.options.scopes}) })
+      const qrcode = await resp.json()
+      if (qrcode.status) {
+        this.qrcode = qrcode.data
+        this.qrdisplay = new QRious({
+          element: document.getElementById(this.options.qrid),
+          value: qrcode.data.qrcode,
+          padding: 20,
+          size: 500
+        });
+        this.startRealtimeConnection()
+      }
     } catch (error) {
-      console.error('Error loading Supabase library:', error);
+      console.error('Error getting qrcode:', error);
     }
-    const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens`, { headers: { Authorization: this.options.apikey }, method: 'POST', body: JSON.stringify({scopes: this.options.scopes}) })
-    const qrcode = await resp.json()
-    if (qrcode.status) {
-      this.qrcode = qrcode.data
-      this.qrdisplay = new QRious({
-        element: document.getElementById(this.options.qrid),
-        value: qrcode.data.qrcode,
-        padding: 20,
-        size: 500
-      });
-      this.startRealtimeConnection()
-    }
+
+    
   }
 
   async startRealtimeConnection() {

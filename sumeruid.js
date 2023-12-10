@@ -62,7 +62,7 @@ class SumeruId {
     if (qrcode.status) {
       this.qrcode = qrcode.data
       this.qrdisplay = new QRious({
-        element: document.getElementById(this.options.id),
+        element: document.getElementById(this.options.qrid),
         value: qrcode.data.qrcode,
         padding: 20,
         size: 500

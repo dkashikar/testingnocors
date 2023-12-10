@@ -46,6 +46,7 @@ class SumeruId {
     this.options.countdown = this.options.countdown ?? scriptTag.getAttribute('data-countdown');
     this.options.onScanned = this.options.onScan ?? this.getFunctionByName(scriptTag.getAttribute('data-on-scan'));
     this.options.onClosed = this.options.onClosed ?? this.getFunctionByName(scriptTag.getAttribute('data-on-closed'));
+    this.options.scopes = this.options.scopes ?? scriptTag.getAttribute('data-scopes')?.split(',') ?? [];
 
     
     await this.getQrCode()
@@ -57,7 +58,7 @@ class SumeruId {
     } catch (error) {
       console.error('Error loading Supabase library:', error);
     }
-    const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens`, { headers: { Authorization: this.options.apikey } })
+    const resp = await fetch(`${SumeruId.sumeruIdUrl}/auth/tokens`, { headers: { Authorization: this.options.apikey }, method: 'POST', body: JSON.stringify({scopes: this.options.scopes}) })
     const qrcode = await resp.json()
     if (qrcode.status) {
       this.qrcode = qrcode.data
